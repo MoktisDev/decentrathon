@@ -1,0 +1,29 @@
+local RunServ = game:GetService("RunService")
+local ai = require(game.ReplicatedStorage.Forbidden.AI)
+local ragdoll = require(game.ReplicatedStorage.ragdoll)
+local knockback = require(game.ReplicatedStorage.knockback)
+local module = {}
+
+
+function module.RandomPoint(npc)
+	while npc.Status.Value ~= "Running" and npc.Status.Value ~= "Dead" do
+	       npc.Status.Value = "Going"
+		   local rand = Random.new()
+	       ai.SmartPathfind(npc, workspace.Checkpoints["Point"..rand:NextInteger(1,10)])
+   	       task.wait(5)
+	       ai.Stop(npc)
+           print("going")
+	    	npc.Status.Value = "Stand"
+	end
+end
+
+function module.Crush(npc)
+	ragdoll.Start(npc)
+	knockback.Start(npc, Vector3.new(0,100,0))
+	npc.Status.Value = "Running"
+	task.wait(3)
+	ragdoll.Stop(npc)
+	npc.Humanoid.WalkSpeed = 30
+	ai.SmartPathfind(npc, workspace.Checkpoints.Escape)
+end
+return module

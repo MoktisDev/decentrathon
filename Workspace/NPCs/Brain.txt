@@ -1,0 +1,19 @@
+local npc = script.Parent
+local module = require(game.ReplicatedStorage.NPC)
+local prompt = npc.Head.Prompt
+local trigger = coroutine.create(function()
+	prompt.Triggered:Connect(function(plr)
+		print("Got em")
+		local anim = game.ReplicatedStorage.Interact
+		local track = npc.Humanoid:LoadAnimation(anim)
+		track:Play()
+		prompt.Enabled = false 
+		npc.Humanoid.WalkSpeed = 0
+		track.Ended:Connect(function()
+			npc.Status.Value = "Dead"
+			npc.Humanoid.Health = 0
+		end)
+	end)
+end)
+coroutine.resume(trigger)
+if npc.Status.Value == "Stand" then module.RandomPoint(npc) end

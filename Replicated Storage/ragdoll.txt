@@ -1,0 +1,88 @@
+-- RAGDOLL SCRIPT
+
+local ragdoll = {}
+local walksp
+local jumpheight
+function ragdoll.Start(character)
+	if character.Ragdoll.Value then return end
+	walksp = character.Humanoid.WalkSpeed
+	jumpheight = character.Humanoid.JumpPower
+	character.Ragdoll.Value = true
+	for i, joint in pairs(character:GetDescendants()) do
+		if joint:IsA("Motor6D") and joint.Name ~= "HumanoidRootPart" and joint.Name ~= "RootJoint" then
+			local socket = Instance.new("BallSocketConstraint")
+			local a0 = Instance.new("Attachment")
+			local a1 = Instance.new("Attachment")
+			a0.Parent = joint.Part0
+			a1.Parent = joint.Part1
+			socket.Parent = joint.Parent
+			socket.Attachment0 = a0
+			socket.Attachment1 = a1
+			a0.CFrame = joint.C0
+			a1.CFrame = joint.C1
+			socket.LimitsEnabled = true
+			socket.TwistLimitsEnabled = true
+
+			joint.Enabled = false
+		end
+		--for collision
+		if joint:IsA("Part") and joint.Name ~= "Torso" and joint.Name ~= "Handle" and joint.Name ~= "HumanoidRootPart" then
+			local collider = Instance.new("Part") 
+			collider.Parent = joint
+			collider.CanCollide = true
+			collider.Massless = true
+			collider.Position = joint.Position
+			collider.Size = joint.Size
+			collider.Transparency = 1
+			collider.Name = "Collider"
+			local colliderweld = Instance.new("Weld")
+			colliderweld.Parent = joint
+			colliderweld.Part0 = joint
+			colliderweld.Part1 = collider
+			colliderweld.Name = "ColliderWeld"
+		end
+	end
+
+	character.Humanoid.WalkSpeed = 0
+	character.Humanoid.JumpPower = 0
+
+	character.Humanoid.PlatformStand = true
+
+	character.Humanoid.AutoRotate = false
+end
+
+function ragdoll.Stop(character)
+	local hrp = character:FindFirstChild("HumanoidRootPart")
+	local hum = character:FindFirstChild("Humanoid")
+
+	hum.PlatformStand = false
+
+	for i, joint in pairs(character:GetDescendants()) do
+		if joint:IsA("BallSocketConstraint") then
+			joint:Destroy()
+		end
+
+		if joint:IsA("Motor6D") then
+			joint.Enabled = true
+		end
+		if joint:IsA("Part") and joint.Name ~= "Torso" then
+			for i, part in pairs(joint:GetChildren()) do
+				if part.Name == "Collider" or part.Name == "ColliderWeld" then
+					part:Destroy()
+				end
+			end
+		end
+	end
+
+	character.Ragdoll.Value = false
+
+	hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+
+	hum.WalkSpeed = walksp
+	hum.JumpPower = jumpheight
+	
+
+	hum.AutoRotate = true
+end
+
+return ragdoll

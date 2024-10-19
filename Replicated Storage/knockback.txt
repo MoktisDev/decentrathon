@@ -1,0 +1,18 @@
+local kb = {}
+
+function kb.Start(character, direction)
+	local hrp = character:FindFirstChild("HumanoidRootPart")
+	
+	if hrp == nil then
+		return
+	end
+	
+	local att = Instance.new("Attachment", hrp)
+	local lv = Instance.new("LinearVelocity", att)
+	lv.MaxForce = math.huge
+	lv.VectorVelocity = direction
+	lv.Attachment0 = att
+	game.Debris:AddItem(att, 0.1)
+end
+
+return kb

@@ -1,0 +1,11 @@
+local car = script.Parent
+local hitbox = car.Hitbox
+local npc = require(game.ReplicatedStorage.NPC)
+hitbox.Touched:Connect(function(part)
+	if not part.Parent:WaitForChild("Humanoid",0.01) and part.Parent.Parent.Name ~= "NPCs" and not part.Parent:WaitForChild("Ragdoll", 0.01) then return end
+	if part.Parent.Ragdoll.Value == false then
+	print("RUSH")
+	npc.Crush(part.Parent) 
+	
+	end
+end)
